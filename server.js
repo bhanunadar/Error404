@@ -6,7 +6,7 @@ var global_user;
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "BhanuGoban"
+    password: "nothing"
   });
 var fs = require('fs')
 app.use(bodyParser.urlencoded({extended:true}));
