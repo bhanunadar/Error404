@@ -1,0 +1,188 @@
+<html>
+    <head>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    </head>
+    <style>
+        input {
+        border: 0;
+        outline: 0;
+        background: transparent;
+        border-bottom: 1px solid black;
+    }
+    .question:hover{
+        box-shadow: 10px 10px 5px grey;
+        padding: 25px;
+    }
+    .main_form{
+        align: center;
+        text-align: center;
+    }
+   .center2{
+       margin-top:50px;
+       margin-left:550px;
+   }
+   .center3{
+    margin-top:50px;
+   }
+   .final{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+   }
+   .center4{
+    margin-left:450px;
+    width:400px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+   }
+    </style>
+   
+    <body>
+        <div style="margin-left:470px;">
+            <h1>Create Your Survey Form</h1>
+            <button value="Get Shareable Link" class="btn btn-lg btn-success final" onclick="myFunction()">Share</button>
+        </div>
+        <div class="main_form">
+            <div class="question card" >
+                <h2><input  onClick="this.select();" style="width:75%;" value="Untitled Question" type="text"/></h2>
+                <ul>
+                    
+                </ul>
+                <button class="card-footer btn btn-success" onclick="addOption(this)" value="Add Option">Add Option</button>
+                <button class="card-footer btn btn-danger" onclick="removeOption(this)" value="Remove Option">Remove Option</button>
+                <button value="Add Text Field" class=" btn btn-warning" onclick="AddTextField(this)">Add Text Field</button>
+            </div>
+        </div>
+        <button value="Add Question" class="btn btn-success center2"   onclick="AddQuestion()">Add Question</button>
+        <button value="Remove Question" class="btn btn-danger center3" onclick="RemoveQuestion()">Remove Question</button>
+        <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+                
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title">Share Your Survey</h4>
+                    </div>
+                    <div class="modal-body">
+                      <input id="toBeCopied" value="localhost:3000/form/suraj" >
+                      <button class="form-control btn btn-danger" onclick="Copy()">Copy to ClipBoard</button>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+        <script>
+            function Copy() {
+                var copyText = document.getElementById("toBeCopied");
+                copyText.select();
+                $("#myModal").modal("hide");
+                document.execCommand("copy");
+                alert("Copied the text: " + copyText.value); 
+            }
+            function AddTextField(p){
+                console.log("Add");
+                var parent=$(p).parent();
+                var ul=$(parent).find('ul');
+                $(ul).after('<input class="form-control center4" style="height: 40px;" type="text">');
+            }
+            function AddQuestion()
+            {
+                var p=$('.main_form');
+                $(p).append('<div class="question card" ><h2><input style="width:75%;" onClick="this.select();" value="Untitled Question" type="text"/></h2><ul></ul><button class="card-footer btn btn-success" onclick="addOption(this)" value="Add Option">Add Option</button><button class="card-footer btn btn-danger" onclick="removeOption(this)" value="Remove Option">Remove Option</button><button value="Add Text Field" class=" btn btn-warning" onclick="AddTextField(this)">Add Text Field</button></div>');
+            }
+            function RemoveQuestion(){
+                var p=$('.main_form');
+                $(p).children().last().remove();
+            }
+            function removeOption(p){
+                var parent=$(p).parent();
+                console.log(parent);
+                var ul=$(parent).find('ul');
+                console.log(ul);
+                if($(ul).children().length==0)
+                    return;
+                $(ul).children().last().remove();
+            }
+            function addOption(p)
+            {
+                console.log("Add");
+                var parent=$(p).parent();
+                console.log(parent);
+                var ul=$(parent).find('ul');
+                console.log(ul);
+                $(ul).append('<li><input  style="height: 40px;" type="text"></li>');
+            }
+           function myFunction(){
+                var p=$('.main_form').children();
+                var question=[];
+                var options=[];
+                //console.log(p);
+                for(var i=0;i<p.length;i=i+1)
+                {
+                    var d=$(p[i]).find('h2');
+                    var inp=$(d).find('input').val();
+                    question.push(inp);
+                    var ul=$(p[i]).find('ul');
+                    var leng=$(ul).children().length;
+                    if(leng==0)
+                    {
+                        var temp=[];
+                        options.push(temp);
+                    }
+                    else
+                    {
+                        var li=$(ul).children();
+                        var temp=[];
+                        $(li).each(function(){
+                           var inp = $(this).find('input').val();
+                            temp.push(inp);
+                        })
+                        options.push(temp);
+                    }
+                    
+                }
+                console.log(question);
+                console.log(options);
+                var convo='"{ "ice":{ "says":["Would you like to take survey?"],"reply":[{ "question":"Yes","answer":"next0"},{ "question":"No","answer":"next"}]},';
+                var i;
+                for( i=0;i<question.length;i++)
+                {
+                    convo+='"next'+i+'":{"says":["'+question[i]+'"],"reply":[';
+                    var temp=options[i];
+                    if(temp.length==0)
+                    {
+                        convo+='{"question":"","answer":"next'+(i+1)+'"}';
+                    }
+                    for(var j=0;j<temp.length;j++)
+                    {
+                        convo+='{"question":"'+temp[j]+'","answer":"next'+(i+1)+'"}';
+                        if(j!=temp.length-1)
+                        {
+                            convo+=',';
+                        }
+                    }
+
+                    convo+="]}";
+                    if(i!=question.length-1)
+                    {
+                        convo+=',';
+                    }
+                }
+                convo+=',"next'+i+'":{"says":["Thank you for your time!!"],"reply":[{"question":"End Survey","answer":"bye"},{"question":"Fill one more survey","answer":"next0"}]}'
+                convo+='}"';
+                console.log(convo);
+                
+                $.post('/save', {input : convo}, function(result) {
+                    console.log(result);
+                });
+                $("#myModal").modal("show");
+    
+  // Hide the Modal
+                
+            }
+        </script>
+    </body>
+</html>
+
